@@ -442,10 +442,14 @@ def main(args):
         from datasets.waymo import WaymoDataset
 
         dataset = WaymoDataset(data_cfg=cfg.data)
-    else:
+    elif cfg.data.dataset == "nuscenes":
         from datasets.nuscenes import NuScenesDataset
 
         dataset = NuScenesDataset(data_cfg=cfg.data)
+    else:
+        from datasets.kitti360 import KITTI360Dataset
+
+        dataset = KITTI360Dataset(data_cfg=cfg.data)
 
     # To give us a quick preview of the scene, we render a data video
     if args.render_data_video or args.render_data_video_only:
