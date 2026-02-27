@@ -9,6 +9,8 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 from PIL import Image
+from tqdm import trange
+from radiance_fields.video_utils import save_videos  # same helper Waymo uses
 
 from datasets.base.pixel_source import ScenePixelSource
 from datasets.base.scene_dataset import SceneDataset
