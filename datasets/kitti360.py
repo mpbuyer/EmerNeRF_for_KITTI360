@@ -349,3 +349,92 @@ class KITTI360Dataset(SceneDataset):
                     test_indices.append(t * self.pixel_source.num_cams + cam)
 
         return train_timesteps, test_timesteps, train_indices, test_indices
+    def save_videos(self, video_dict: dict, **kwargs):
+        # Same pattern as WaymoDataset.save_videos()
+        return save_videos(
+            render_results=video_dict,
+            save_pth=kwargs["save_pth"],
+            num_timestamps=kwargs["num_timestamps"],
+            keys=kwargs["keys"],
+            num_cams=kwargs["num_cams"],
+            fps=kwargs["fps"],
+            verbose=kwargs["verbose"],
+            save_seperate_video=kwargs["save_seperate_video"],
+        )
+
+    def render_data_videos(
+        self,
+        save_pth: str,
+        split: str = "full",
+        fps: int = 24,
+        verbose: bool = True,
+    ):
+        """
+        Render a quick 'data.mp4' preview video for KITTI-360 monocular.
+        For num_cams=1, the number of frames in the video equals num_img_timesteps
+        (i.e., the number of images loaded after start/end_timestep trimming).
+        Mirrors WaymoDataset.render_data_videos() but omits LiDAR overlays. :contentReference[oaicite:2]{index=2}
+        """
+        if self.pixel_source is None:
+            raise RuntimeError("pixel_source is None; enable data.pixel_source.load_rgb=True")
+
+        # pick the right split wrapper (same control flow as Waymo)
+        if split == "full":
+            pixel_dataset = self.full_pixel_set
+        elif split == "train":
+            pixel_dataset = self.train_pixel_set
+        elif split == "test":
+            pixel_dataset = self.test_pixel_set
+        else:
+            raise NotImplementedError(f"Split {split} not supported")
+
+        rgb_imgs = []
+        dynamic_objects = []
+        sky_masks = []
+        feature_pca_colors = []
+
+        for i in trange(len(pixel_dataset), desc="Rendering data videos", dynamic_ncols=True):
+            data_dict = pixel_dataset[i]
+
+            if "pixels" in data_dict:
+                rgb_imgs.append(data_dict["pixels"].cpu().numpy())
+
+            if "dynamic_masks" in data_dict:
+                dynamic_objects.append(
+                    (data_dict["dynamic_masks"].unsqueeze(-1) * data_dict["pixels"]).cpu().numpy()
+                )
+
+            if "sky_masks" in data_dict:
+                sky_masks.append(data_dict["sky_masks"].cpu().numpy())
+
+            if "features" in data_dict:
+                # visualize features via the registered PCA parameters (same idea as Waymo)
+                feats = data_dict["features"]
+                feats = feats @ self.pixel_source.feat_dimension_reduction_mat
+                feats = (feats - self.pixel_source.feat_color_min) / (
+                    self.pixel_source.feat_color_max - self.pixel_source.feat_color_min
+                )
+                feats = feats.clamp(0, 1)
+                feature_pca_colors.append(feats.cpu().numpy())
+
+        video_dict = {
+            "gt_rgbs": rgb_imgs,
+            "gt_feature_pca_colors": feature_pca_colors,
+            # optional:
+            # "gt_dynamic_objects": dynamic_objects,
+            # "gt_sky_masks": sky_masks,
+        }
+        video_dict = {k: v for k, v in video_dict.items() if len(v) > 0}
+
+        return self.save_videos(
+            video_dict,
+            save_pth=save_pth,
+            num_timestamps=self.num_img_timesteps,
+            keys=video_dict.keys(),
+            num_cams=self.pixel_source.num_cams,
+            fps=fps,
+            verbose=verbose,
+            save_seperate_video=False,
+        )
+
+
