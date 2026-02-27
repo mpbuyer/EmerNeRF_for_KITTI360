@@ -3,7 +3,7 @@ torch==2.2.2+cu121
 torchvision==0.17.2+cu121
 omegaconf==2.3.0
 torchmetrics==0.10.3
-xformers==0.0.18
+xformers>0.0.18
 
 # dev
 black==22.6.0
