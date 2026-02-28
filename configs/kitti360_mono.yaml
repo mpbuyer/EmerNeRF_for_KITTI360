@@ -5,8 +5,8 @@ data:
   cam_id: 0
   scene_idx: 0 # which scene to use, [0, 798] for waymo's training set and [0, 849] for nuscenes's train/val sets, inclusive
   start_timestep: 0 # which timestep to start from
-  end_timestep: 300 # which timestep to end at, -1 means the last timestep
-  ray_batch_size: 8192 # ray batch size for training, it's embedded in the dataset class for now
+  end_timestep: -1 # which timestep to end at, -1 means the last timestep
+  ray_batch_size: 4096 # ray batch size for training, it's embedded in the dataset class for now
   preload_device: cuda # choose from ["cpu", "cuda"], cache the data on this device. Will oom if the dataset is too large
   pixel_source: # everything related to "pixels" --- from camera images
     load_size: [640, 960] # [height, width], resize the raw image to this size
