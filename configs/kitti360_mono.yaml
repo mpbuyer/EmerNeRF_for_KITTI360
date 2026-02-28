@@ -7,7 +7,7 @@ data:
   start_timestep: 0 # which timestep to start from
   end_timestep: -1 # which timestep to end at, -1 means the last timestep
   ray_batch_size: 4096 # ray batch size for training, it's embedded in the dataset class for now
-  preload_device: cuda # choose from ["cpu", "cuda"], cache the data on this device. Will oom if the dataset is too large
+  preload_device: cpu # choose from ["cpu", "cuda"], cache the data on this device. Will oom if the dataset is too large
   pixel_source: # everything related to "pixels" --- from camera images
     load_size: [640, 960] # [height, width], resize the raw image to this size
     downscale: 1 # downscale factor wrt to the load_size. for example, you may want to render a low-resolution video for preview
