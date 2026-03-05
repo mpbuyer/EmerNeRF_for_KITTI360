@@ -9,7 +9,7 @@ data:
   ray_batch_size: 4096 # ray batch size for training, it's embedded in the dataset class for now
   preload_device: cpu # choose from ["cpu", "cuda"], cache the data on this device. Will oom if the dataset is too large
   pixel_source: # everything related to "pixels" --- from camera images
-    load_size: [640, 960] # [height, width], resize the raw image to this size
+    load_size: [375, 1242] # [height, width], resize the raw image to this size
     downscale: 1 # downscale factor wrt to the load_size. for example, you may want to render a low-resolution video for preview
     num_cams: 1 # number of cameras to use, choose from [1, 3, 5] for waymo, [1, 3, 6] for nuscenes. 1: frontal, 3: frontal + frontal_left + frontal_right
     test_image_stride: 0 # use every Nth timestep for the test set. if 0, use all images for training and none for testing
@@ -21,7 +21,7 @@ data:
     target_feature_dim: 64 # if not null, we will use pca to reduce the dimension of 2D features to this value
     feature_model_type: dinov2_vitb14 # the pretrained model to use. we use dino_vitb8 for dinov1 and dinov2_vitb14 for dinov2, but more models are available
     feature_extraction_stride: 7 # 8 for v1, and 7 for v2
-    feature_extraction_size: [644, 966] # for waymo, [640, 960] for v1, [644, 966] for v2
+    feature_extraction_size: [375, 1242] # for waymo, [640, 960] for v1, [644, 966] for v2
     delete_features_after_run: False # whether to delete features after running to save disk space. 2D features of a single sequence can be 30GB+.
     sampler:  # importance sampling for the pixels. we use pixel error as the importance weight
       buffer_downscale: 16 # downscale factor for the buffer wrt load_size
@@ -151,7 +151,7 @@ supervision: # supervision hyperparameters
     loss_type: sparsity
     loss_coef: 0.01
 optim: # optimization hyperparameters
-  num_iters: 25000 # number of iterations to train
+  num_iters: 20000 # number of iterations to train
   weight_decay: 1e-5
   lr: 0.01
   seed: 0 # random seed
